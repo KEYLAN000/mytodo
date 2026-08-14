@@ -1,0 +1,28 @@
+.filter-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px 30px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 5px 14px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: 1.5px dashed var(--line);
+  background: transparent;
+  color: var(--ink-light);
+  font-family: 'Ma Shan Zheng', cursive;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+.filter-btn.active,
+.filter-btn:hover {
+  background: rgba(212,132,107,0.1);
+  border-color: var(--accent-soft);
+  color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .filter-row { padding: 8px 16px; }
+}

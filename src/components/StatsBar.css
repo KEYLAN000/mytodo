@@ -1,0 +1,39 @@
+.stats-bar {
+  display: flex;
+  gap: 12px;
+  padding: 0 30px 6px;
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  margin-top: 6px;
+}
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.stat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.stat-dot.done { background: var(--green); }
+.stat-dot.pending { background: var(--accent-soft); }
+
+.progress-bar-wrap {
+  margin: 8px 30px 0;
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+@media (max-width: 480px) {
+  .stats-bar { padding: 0 16px 4px; }
+}

@@ -1,0 +1,160 @@
+/* ═══════════════════════════════════════════
+   手账待办清单 — Global Styles
+   ═══════════════════════════════════════════ */
+
+:root {
+  --paper: #faf5eb;
+  --paper-dark: #f0e8d5;
+  --ink: #4a3728;
+  --ink-light: #8b7355;
+  --accent: #d4846b;
+  --accent-soft: #f0c4b4;
+  --green: #7a9e7a;
+  --blue: #7a8c9e;
+  --yellow: #e8d49a;
+  --pink: #e8b4b8;
+  --purple: #b4a4c8;
+  --line: #d4c5b2;
+  --shadow: rgba(74, 55, 40, 0.08);
+  --tape-yellow: #f5e6c8;
+  --tape-pink: #f2d4d8;
+  --tape-green: #d4e0d4;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: #e8ddd0;
+  background-image:
+    /* 日系波点层 */
+    radial-gradient(circle, rgba(180, 160, 140, 0.25) 1.5px, transparent 1.5px),
+    radial-gradient(circle, rgba(190, 170, 150, 0.35) 2px, transparent 2px),
+    radial-gradient(circle, rgba(200, 180, 160, 0.2) 1px, transparent 1px),
+    /* 暖色光晕层 */
+    radial-gradient(ellipse at 20% 50%, #efe4d5 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, #f0e6d8 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 80%, #e8dcc8 0%, transparent 60%);
+  background-size:
+    24px 24px,
+    48px 48px,
+    16px 16px,
+    100% 100%,
+    100% 100%,
+    100% 100%;
+  background-position:
+    0 0,
+    12px 12px,
+    4px 4px,
+    0 0,
+    0 0,
+    0 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px 20px;
+}
+
+/* 桌面装饰 */
+.desk {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 23px,
+      rgba(180, 160, 140, 0.06) 23px,
+      rgba(180, 160, 140, 0.06) 24px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 80px,
+      rgba(180, 160, 140, 0.03) 80px,
+      rgba(180, 160, 140, 0.03) 81px
+    );
+}
+
+/* 手账本主体 */
+.journal {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  background: var(--paper);
+  border-radius: 16px 8px 8px 16px;
+  box-shadow:
+    0 2px 20px var(--shadow),
+    0 1px 3px rgba(0,0,0,0.06),
+    inset 0 0 0 1px rgba(255,255,255,0.5);
+  overflow: visible;
+}
+
+/* 左侧装订环 */
+.rings {
+  position: absolute;
+  left: -16px;
+  top: 30px;
+  bottom: 30px;
+  width: 24px;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.ring {
+  width: 22px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid #c4b5a0;
+  background: linear-gradient(135deg, #d4c8b8, #bfb09a);
+  box-shadow:
+    inset 0 2px 3px rgba(255,255,255,0.5),
+    0 2px 4px rgba(0,0,0,0.1),
+    0 0 0 4px var(--paper);
+  position: relative;
+}
+.ring::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 2px;
+  background: rgba(0,0,0,0.15);
+  transform: translateX(-50%);
+  border-radius: 1px;
+}
+
+/* 贴纸装饰 */
+.sticker {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+}
+.sticker.s1 { bottom: -30px; right: 20px; animation-delay: 0s; }
+.sticker.s2 { bottom: -20px; left: 30px; animation-delay: 2s; font-size: 1.6rem; }
+
+@keyframes float {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-8px) rotate(3deg); }
+}
+
+@keyframes taskIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 响应式 */
+@media (max-width: 480px) {
+  .journal { border-radius: 10px 4px 4px 10px; }
+  .ring { width: 16px; height: 22px; }
+  .rings { left: -12px; }
+}

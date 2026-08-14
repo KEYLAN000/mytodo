@@ -1,0 +1,19 @@
+.task-list {
+  list-style: none;
+  padding: 8px 30px 24px;
+  min-height: 200px;
+}
+
+.empty-hint {
+  text-align: center;
+  color: #c4b5a0;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 1rem;
+  padding: 50px 0;
+  line-height: 1.8;
+  border-bottom: none;
+}
+
+@media (max-width: 480px) {
+  .task-list { padding: 8px 16px 20px; }
+}

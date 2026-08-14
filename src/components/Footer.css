@@ -1,0 +1,33 @@
+.clear-section {
+  text-align: center;
+  padding: 0 30px 18px;
+}
+.btn-clear {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 0.8rem;
+  color: var(--ink-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 16px;
+  border-radius: 12px;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+}
+.btn-clear:hover:not(:disabled) {
+  background: rgba(200,100,80,0.08);
+  color: #c75a50;
+}
+.btn-clear:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.footer-decor {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 30px 24px;
+  font-size: 1.2rem;
+  opacity: 0.5;
+}

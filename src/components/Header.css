@@ -1,0 +1,97 @@
+/* 头部 — 和纸胶带装饰 */
+.header {
+  position: relative;
+  padding: 28px 30px 20px;
+}
+
+.washi-tape {
+  position: absolute;
+  height: 36px;
+  border-radius: 2px;
+  opacity: 0.78;
+  transform: rotate(-1.5deg);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.washi-tape:nth-child(1) {
+  top: -6px; left: 20px; width: 90px;
+  background: var(--tape-yellow);
+  transform: rotate(-2deg);
+}
+.washi-tape:nth-child(2) {
+  top: -8px; left: 130px; width: 75px;
+  background: var(--tape-pink);
+  transform: rotate(1.5deg);
+}
+.washi-tape:nth-child(3) {
+  top: -4px; right: 40px; width: 80px;
+  background: var(--tape-green);
+  transform: rotate(-1deg);
+}
+.washi-tape::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 8px,
+    rgba(255,255,255,0.3) 8px,
+    rgba(255,255,255,0.3) 9px
+  );
+  border-radius: 2px;
+}
+
+.header-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.title {
+  font-family: 'ZCOOL KuaiLe', cursive;
+  font-size: 2rem;
+  color: var(--ink);
+  letter-spacing: 2px;
+}
+
+.title-icon {
+  font-size: 1.6rem;
+}
+
+/* 日期印章 */
+.date-stamp {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 0.85rem;
+  color: var(--accent);
+  background: rgba(212,132,107,0.1);
+  border: 1.5px dashed var(--accent-soft);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+  transform: rotate(8deg);
+  flex-shrink: 0;
+}
+.date-stamp .day {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+@media (max-width: 480px) {
+  .header { padding: 20px 16px 14px; }
+  .title { font-size: 1.5rem; }
+  .date-stamp { width: 48px; height: 48px; font-size: 0.7rem; }
+  .date-stamp .day { font-size: 1.1rem; }
+}

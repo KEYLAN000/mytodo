@@ -1,0 +1,146 @@
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 10px;
+  border-bottom: 1px dotted var(--line);
+  transition: all 0.25s;
+  position: relative;
+  animation: taskIn 0.35s ease;
+  cursor: default;
+}
+
+/* 手绘复选框 */
+.checkbox-wrap {
+  flex-shrink: 0;
+  position: relative;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+}
+.checkbox-wrap input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.check-box {
+  width: 26px;
+  height: 26px;
+  border: 2.5px solid var(--ink-light);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+  background: rgba(255,255,255,0.5);
+  position: relative;
+}
+.check-box::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 1.5px solid var(--ink-light);
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.checkbox-wrap:hover .check-box::before {
+  opacity: 0.4;
+}
+.check-box svg {
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.checkbox-wrap input:checked + .check-box {
+  background: var(--green);
+  border-color: var(--green);
+}
+.checkbox-wrap input:checked + .check-box svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.task-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.task-text {
+  font-size: 0.95rem;
+  color: var(--ink);
+  word-break: break-word;
+  transition: all 0.25s;
+  line-height: 1.5;
+}
+.task-item.done .task-text {
+  text-decoration: line-through;
+  text-decoration-color: var(--ink-light);
+  text-decoration-thickness: 2px;
+  color: var(--ink-light);
+  opacity: 0.65;
+}
+
+.task-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  flex-wrap: wrap;
+}
+.task-cat {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-family: 'Ma Shan Zheng', cursive;
+  letter-spacing: 0.5px;
+}
+
+.task-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.task-item:hover .task-actions {
+  opacity: 1;
+}
+
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-light);
+  font-size: 1rem;
+  transition: all 0.15s;
+}
+.btn-icon:hover {
+  background: rgba(0,0,0,0.05);
+  color: var(--ink);
+}
+.btn-icon.danger:hover {
+  background: rgba(220,100,80,0.1);
+  color: #c75a50;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 2px dashed var(--accent-soft);
+  border-radius: 8px;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: rgba(255,255,255,0.8);
+  outline: none;
+}
