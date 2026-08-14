@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📒 手账待办清单</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #faf5eb;
+    --paper-dark: #f0e8d5;
+    --ink: #4a3728;
+    --ink-light: #8b7355;
+    --accent: #d4846b;
+    --accent-soft: #f0c4b4;
+    --green: #7a9e7a;
+    --blue: #7a8c9e;
+    --yellow: #e8d49a;
+    --pink: #e8b4b8;
+    --purple: #b4a4c8;
+    --line: #d4c5b2;
+    --shadow: rgba(74, 55, 40, 0.08);
+    --tape-yellow: #f5e6c8;
+    --tape-pink: #f2d4d8;
+    --tape-green: #d4e0d4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: #e8ddd0;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, #efe4d5 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, #f0e6d8 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 80%, #e8dcc8 0%, transparent 60%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 20px;
+  }
+
+  /* 桌面装饰 */
+  .desk {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      /* 纸张纹理 */
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 23px,
+        rgba(180, 160, 140, 0.06) 23px,
+        rgba(180, 160, 140, 0.06) 24px
+      ),
+      /* 竖向淡线 */
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 80px,
+        rgba(180, 160, 140, 0.03) 80px,
+        rgba(180, 160, 140, 0.03) 81px
+      );
+  }
+
+  /* 手账本主体 */
+  .journal {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    background: var(--paper);
+    border-radius: 16px 8px 8px 16px;
+    box-shadow:
+      0 2px 20px var(--shadow),
+      0 1px 3px rgba(0,0,0,0.06),
+      inset 0 0 0 1px rgba(255,255,255,0.5);
+    overflow: visible;
+  }
+
+  /* 左侧装订环 */
+  .journal::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 40px;
+    bottom: 40px;
+    width: 20px;
+  }
+  .rings {
+    position: absolute;
+    left: -16px;
+    top: 30px;
+    bottom: 30px;
+    width: 24px;
+    z-index: 2;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+  .ring {
+    width: 22px;
+    height: 28px;
+    border-radius: 50%;
+    border: 3px solid #c4b5a0;
+    background: linear-gradient(135deg, #d4c8b8, #bfb09a);
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,0.5),
+      0 2px 4px rgba(0,0,0,0.1),
+      0 0 0 4px var(--paper);
+    position: relative;
+  }
+  .ring::after {
+    content: '';
+    position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    width: 2px;
+    background: rgba(0,0,0,0.15);
+    transform: translateX(-50%);
+    border-radius: 1px;
+  }
+
+  /* 头部 — 和纸胶带装饰 */
+  .header {
+    position: relative;
+    padding: 28px 30px 20px;
+  }
+  .washi-tape {
+    position: absolute;
+    height: 36px;
+    border-radius: 2px;
+    opacity: 0.78;
+    transform: rotate(-1.5deg);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .washi-tape:nth-child(1) {
+    top: -6px; left: 20px; width: 90px;
+    background: var(--tape-yellow);
+    transform: rotate(-2deg);
+  }
+  .washi-tape:nth-child(2) {
+    top: -8px; left: 130px; width: 75px;
+    background: var(--tape-pink);
+    transform: rotate(1.5deg);
+  }
+  .washi-tape:nth-child(3) {
+    top: -4px; right: 40px; width: 80px;
+    background: var(--tape-green);
+    transform: rotate(-1deg);
+  }
+  /* 胶带纹理 */
+  .washi-tape::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 8px,
+      rgba(255,255,255,0.3) 8px,
+      rgba(255,255,255,0.3) 9px
+    );
+    border-radius: 2px;
+  }
+
+  .header-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .title-group {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .title {
+    font-family: 'ZCOOL KuaiLe', cursive;
+    font-size: 2rem;
+    color: var(--ink);
+    letter-spacing: 2px;
+  }
+  .title-icon {
+    font-size: 1.6rem;
+  }
+  .date-stamp {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 0.85rem;
+    color: var(--accent);
+    background: rgba(212,132,107,0.1);
+    border: 1.5px dashed var(--accent-soft);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+    transform: rotate(8deg);
+    flex-shrink: 0;
+  }
+  .date-stamp .day {
+    font-size: 1.3rem;
+    font-weight: bold;
+  }
+
+  /* 统计条 */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    padding: 0 30px 6px;
+    font-size: 0.78rem;
+    color: var(--ink-light);
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .stat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .stat-dot.done { background: var(--green); }
+  .stat-dot.pending { background: var(--accent-soft); }
+  .progress-bar-wrap {
+    margin: 8px 30px 0;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  /* 输入区域 */
+  .input-section {
+    padding: 16px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .input-row {
+    display: flex;
+    gap: 8px;
+  }
+  .input-main {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px dashed var(--line);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.6);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    outline: none;
+    transition: all 0.2s;
+  }
+  .input-main:focus {
+    border-color: var(--accent-soft);
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 0 3px rgba(212,132,107,0.08);
+  }
+  .input-main::placeholder {
+    color: #c4b5a0;
+    font-style: italic;
+  }
+  .btn-add {
+    padding: 12px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'ZCOOL KuaiLe', cursive;
+    font-size: 1rem;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    box-shadow: 0 3px 8px rgba(212,132,107,0.3);
+    white-space: nowrap;
+  }
+  .btn-add:hover {
+    background: #c77a62;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(212,132,107,0.35);
+  }
+  .btn-add:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(212,132,107,0.3);
+  }
+
+  /* 分类选择行 */
+  .category-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .category-label {
+    font-size: 0.75rem;
+    color: var(--ink-light);
+    margin-right: 2px;
+    font-family: 'Ma Shan Zheng', cursive;
+  }
+  .category-chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Ma Shan Zheng', cursive;
+    letter-spacing: 0.5px;
+    user-select: none;
+  }
+  .category-chip.active {
+    border-color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  /* 筛选标签 */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px 30px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border: 1.5px dashed var(--line);
+    background: transparent;
+    color: var(--ink-light);
+    font-family: 'Ma Shan Zheng', cursive;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: rgba(212,132,107,0.1);
+    border-color: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  /* 任务列表 */
+  .task-list {
+    list-style: none;
+    padding: 8px 30px 24px;
+    min-height: 200px;
+  }
+  .task-list:empty::after {
+    content: '✨ 今天还没有待办事项，\a 写点什么吧～';
+    white-space: pre;
+    display: block;
+    text-align: center;
+    color: #c4b5a0;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 1rem;
+    padding: 50px 0;
+    line-height: 1.8;
+  }
+
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 10px;
+    border-bottom: 1px dotted var(--line);
+    transition: all 0.25s;
+    position: relative;
+    animation: taskIn 0.35s ease;
+    cursor: default;
+  }
+  @keyframes taskIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 手绘复选框 */
+  .checkbox-wrap {
+    flex-shrink: 0;
+    position: relative;
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+  }
+  .checkbox-wrap input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .check-box {
+    width: 26px;
+    height: 26px;
+    border: 2.5px solid var(--ink-light);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s;
+    background: rgba(255,255,255,0.5);
+    position: relative;
+  }
+  /* 手绘不规则边框效果 */
+  .check-box::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border: 1.5px solid var(--ink-light);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .checkbox-wrap:hover .check-box::before {
+    opacity: 0.4;
+  }
+  .check-box svg {
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .checkbox-wrap input:checked + .check-box {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .checkbox-wrap input:checked + .check-box svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .task-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .task-text {
+    font-size: 0.95rem;
+    color: var(--ink);
+    word-break: break-word;
+    transition: all 0.25s;
+    line-height: 1.5;
+  }
+  .task-item.done .task-text {
+    text-decoration: line-through;
+    text-decoration-color: var(--ink-light);
+    text-decoration-thickness: 2px;
+    color: var(--ink-light);
+    opacity: 0.65;
+  }
+  .task-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--ink-light);
+    flex-wrap: wrap;
+  }
+  .task-cat {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-family: 'Ma Shan Zheng', cursive;
+    letter-spacing: 0.5px;
+  }
+
+  .task-actions {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .task-item:hover .task-actions {
+    opacity: 1;
+  }
+  .btn-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-light);
+    font-size: 1rem;
+    transition: all 0.15s;
+  }
+  .btn-icon:hover {
+    background: rgba(0,0,0,0.05);
+    color: var(--ink);
+  }
+  .btn-icon.danger:hover {
+    background: rgba(220,100,80,0.1);
+    color: #c75a50;
+  }
+
+  /* 编辑内联 */
+  .edit-input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 2px dashed var(--accent-soft);
+    border-radius: 8px;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: rgba(255,255,255,0.8);
+    outline: none;
+  }
+
+  /* 底部装饰 */
+  .footer-decor {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 30px 24px;
+    font-size: 1.2rem;
+    opacity: 0.5;
+  }
+
+  /* 清空按钮 */
+  .clear-section {
+    text-align: center;
+    padding: 0 30px 18px;
+  }
+  .btn-clear {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 0.8rem;
+    color: var(--ink-light);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 16px;
+    border-radius: 12px;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+  .btn-clear:hover {
+    background: rgba(200,100,80,0.08);
+    color: #c75a50;
+  }
+
+  /* 贴纸装饰 */
+  .sticker {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 0;
+    animation: float 4s ease-in-out infinite;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1));
+  }
+  .sticker.s1 { bottom: -30px; right: 20px; animation-delay: 0s; }
+  .sticker.s2 { bottom: -20px; left: 30px; animation-delay: 2s; font-size: 1.6rem; }
+  @keyframes float {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-8px) rotate(3deg); }
+  }
+
+  /* 响应式 */
+  @media (max-width: 480px) {
+    .journal { border-radius: 10px 4px 4px 10px; }
+    .header { padding: 20px 16px 14px; }
+    .input-section { padding: 12px 16px; }
+    .task-list { padding: 8px 16px 20px; }
+    .filter-row { padding: 8px 16px; }
+    .title { font-size: 1.5rem; }
+    .ring { width: 16px; height: 22px; }
+    .rings { left: -12px; }
+    .date-stamp { width: 48px; height: 48px; font-size: 0.7rem; }
+    .date-stamp .day { font-size: 1.1rem; }
+    .stats-bar { padding: 0 16px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="desk"></div>
+
+<div class="journal" id="journal">
+  <!-- 装订环 -->
+  <div class="rings" id="rings"></div>
+
+  <!-- 头部 -->
+  <div class="header">
+    <div class="washi-tape"></div>
+    <div class="washi-tape"></div>
+    <div class="washi-tape"></div>
+    <div class="header-content">
+      <div class="title-group">
+        <span class="title-icon">📒</span>
+        <h1 class="title">待办手账</h1>
+      </div>
+      <div class="date-stamp" id="dateStamp">
+        <span class="day" id="stampDay"></span>
+        <span id="stampMon"></span>
+      </div>
+    </div>
+    <div class="stats-bar" style="margin-top:10px;">
+      <span class="stat-item"><span class="stat-dot pending"></span> 待办 <strong id="countPending">0</strong></span>
+      <span class="stat-item"><span class="stat-dot done"></span> 完成 <strong id="countDone">0</strong></span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- 输入区 -->
+  <div class="input-section">
+    <div class="input-row">
+      <input
+        type="text"
+        class="input-main"
+        id="taskInput"
+        placeholder="✏️ 写下新的待办事项..."
+        maxlength="200"
+        autocomplete="off"
+      />
+      <button class="btn-add" id="btnAdd" title="添加 (回车)">➕ 记下</button>
+    </div>
+    <div class="category-row">
+      <span class="category-label">🏷️ 标签：</span>
+      <span class="category-chip" data-cat="" style="background:#f0e8d5;">📋 全部</span>
+      <span class="category-chip" data-cat="work" style="background:#d4e0e8;">💼 工作</span>
+      <span class="category-chip" data-cat="life" style="background:#e8d4d8;">🏠 生活</span>
+      <span class="category-chip" data-cat="study" style="background:#d4d8e8;">📚 学习</span>
+      <span class="category-chip" data-cat="other" style="background:#d8e8d4;">🌟 其他</span>
+    </div>
+  </div>
+
+  <!-- 筛选 -->
+  <div class="filter-row">
+    <button class="filter-btn active" data-filter="all">📖 全部</button>
+    <button class="filter-btn" data-filter="active">📝 进行中</button>
+    <button class="filter-btn" data-filter="done">✅ 已完成</button>
+  </div>
+
+  <!-- 任务列表 -->
+  <ul class="task-list" id="taskList"></ul>
+
+  <!-- 底部 -->
+  <div class="clear-section">
+    <button class="btn-clear" id="btnClearDone">🧹 清除已完成</button>
+  </div>
+  <div class="footer-decor">
+    <span>✿</span><span>❀</span><span>✿</span><span>❀</span><span>✿</span>
+  </div>
+
+  <!-- 贴纸 -->
+  <div class="sticker s1">🌸</div>
+  <div class="sticker s2">🍀</div>
+</div>
+
+<script>
+(function() {
+  // ── 数据 ──────────────────────────────────
+  const STORAGE_KEY = 'journal_todos';
+  let todos = [];
+  let currentFilter = 'all';
+  let selectedCat = '';
+
+  function load() {
+    try { todos = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch(e) { todos = []; }
+  }
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+  }
+
+  // ── DOM 引用 ──────────────────────────────
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => document.querySelectorAll(s);
+
+  const taskInput   = $('#taskInput');
+  const taskList    = $('#taskList');
+  const btnAdd      = $('#btnAdd');
+  const btnClear    = $('#btnClearDone');
+  const progressBar = $('#progressBar');
+  const countPending = $('#countPending');
+  const countDone   = $('#countDone');
+  const rings       = $('#rings');
+  const stampDay    = $('#stampDay');
+  const stampMon    = $('#stampMon');
+
+  // ── 装订环 ────────────────────────────────
+  function renderRings() {
+    const count = 7;
+    rings.innerHTML = Array.from({length: count}, () => '<div class="ring"></div>').join('');
+  }
+
+  // ── 日期章 ────────────────────────────────
+  function updateDateStamp() {
+    const d = new Date();
+    stampDay.textContent = d.getDate();
+    stampMon.textContent = (d.getMonth() + 1) + '月';
+  }
+
+  // ── 渲染 ──────────────────────────────────
+  function render() {
+    let filtered = todos;
+    if (currentFilter === 'active') filtered = filtered.filter(t => !t.done);
+    if (currentFilter === 'done')   filtered = filtered.filter(t => t.done);
+
+    taskList.innerHTML = '';
+
+    if (filtered.length === 0) {
+      // 让 CSS :empty 伪类生效
+      taskList.innerHTML = '';
+    }
+
+    filtered.forEach((todo, idx) => {
+      const realIdx = todos.indexOf(todo);
+      const li = document.createElement('li');
+      li.className = 'task-item' + (todo.done ? ' done' : '');
+      li.setAttribute('draggable', 'false');
+
+      // 分类颜色
+      const catColors = {
+        work:  { bg: '#d4e0e8', text: '#3a5a6e' },
+        life:  { bg: '#e8d4d8', text: '#6e3a4a' },
+        study: { bg: '#d4d8e8', text: '#3a3a6e' },
+        other: { bg: '#d8e8d4', text: '#3a6e3a' },
+      };
+      const cc = catColors[todo.cat] || { bg: '#f0e8d5', text: '#6e5a3a' };
+      const catLabel = { work:'💼 工作', life:'🏠 生活', study:'📚 学习', other:'🌟 其他' }[todo.cat] || '';
+
+      const created = todo.createdAt ? new Date(todo.createdAt) : null;
+      const timeStr = created
+        ? `${created.getMonth()+1}/${created.getDate()} ${String(created.getHours()).padStart(2,'0')}:${String(created.getMinutes()).padStart(2,'0')}`
+        : '';
+
+      li.innerHTML = `
+        <label class="checkbox-wrap" title="切换完成状态">
+          <input type="checkbox" ${todo.done ? 'checked' : ''} data-action="toggle" data-index="${realIdx}">
+          <span class="check-box">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8l3.5 3.5L13 5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </label>
+        <div class="task-content">
+          <span class="task-text">${escapeHtml(todo.text)}</span>
+          <span class="task-meta">
+            ${catLabel ? `<span class="task-cat" style="background:${cc.bg};color:${cc.text};">${catLabel}</span>` : ''}
+            ${timeStr ? `<span>🕒 ${timeStr}</span>` : ''}
+          </span>
+        </div>
+        <div class="task-actions">
+          <button class="btn-icon" data-action="edit" data-index="${realIdx}" title="编辑">✏️</button>
+          <button class="btn-icon danger" data-action="delete" data-index="${realIdx}" title="删除">🗑️</button>
+        </div>
+      `;
+      taskList.appendChild(li);
+    });
+
+    updateStats();
+  }
+
+  function escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function updateStats() {
+    const total = todos.length;
+    const done  = todos.filter(t => t.done).length;
+    const pending = total - done;
+    countPending.textContent = pending;
+    countDone.textContent = done;
+    const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+    progressBar.style.width = pct + '%';
+  }
+
+  // ── 操作 ──────────────────────────────────
+  function addTodo() {
+    const text = taskInput.value.trim();
+    if (!text) return taskInput.focus();
+
+    const todo = {
+      id: Date.now(),
+      text,
+      done: false,
+      cat: selectedCat,
+      createdAt: new Date().toISOString(),
+    };
+    todos.unshift(todo);
+    save();
+    render();
+    taskInput.value = '';
+    taskInput.focus();
+  }
+
+  function toggleTodo(index) {
+    todos[index].done = !todos[index].done;
+    save();
+    render();
+  }
+
+  function deleteTodo(index) {
+    todos.splice(index, 1);
+    save();
+    render();
+  }
+
+  function editTodoInline(index) {
+    const todo = todos[index];
+    const items = $$('.task-item');
+    let targetLi = null;
+    items.forEach(li => {
+      const cb = li.querySelector('[data-action="toggle"]');
+      if (cb && parseInt(cb.dataset.index) === index) targetLi = li;
+    });
+    if (!targetLi) return;
+
+    const textSpan = targetLi.querySelector('.task-text');
+    const oldHtml = targetLi.innerHTML;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'edit-input';
+    input.value = todo.text;
+    input.maxLength = 200;
+
+    const contentDiv = targetLi.querySelector('.task-content');
+    const oldTextEl = contentDiv.querySelector('.task-text');
+    if (oldTextEl) oldTextEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    const finish = (saveIt) => {
+      if (saveIt) {
+        const v = input.value.trim();
+        if (v) { todo.text = v; save(); }
+      }
+      render();
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') finish(true);
+      if (e.key === 'Escape') finish(false);
+    });
+    input.addEventListener('blur', () => finish(true));
+  }
+
+  function clearDone() {
+    const hasDone = todos.some(t => t.done);
+    if (!hasDone) return;
+    todos = todos.filter(t => !t.done);
+    save();
+    render();
+  }
+
+  // ── 事件委托 ──────────────────────────────
+  taskList.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const index = parseInt(btn.dataset.index);
+    if (isNaN(index) || index < 0 || index >= todos.length) return;
+
+    if (action === 'toggle') {
+      toggleTodo(index);
+    } else if (action === 'delete') {
+      deleteTodo(index);
+    } else if (action === 'edit') {
+      editTodoInline(index);
+    }
+  });
+
+  // 分类选择
+  $$('.category-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      $$('.category-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedCat = chip.dataset.cat;
+    });
+  });
+
+  // 默认选中"全部"
+  $$('.category-chip[data-cat=""]')[0]?.classList.add('active');
+
+  // 筛选
+  $$('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      render();
+    });
+  });
+
+  // 按钮
+  btnAdd.addEventListener('click', addTodo);
+  taskInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') addTodo();
+  });
+  btnClear.addEventListener('click', clearDone);
+
+  // ── 键盘快捷键 ────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      taskInput.focus();
+    }
+  });
+
+  // ── 初始化 ────────────────────────────────
+  function init() {
+    renderRings();
+    updateDateStamp();
+    load();
+    render();
+    taskInput.focus();
+
+    // 初始选中分类chip active
+    $$('.category-chip[data-cat=""]')[0]?.classList.add('active');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
